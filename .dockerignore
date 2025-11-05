@@ -1,0 +1,17 @@
+# .dockerignore
+
+# Ignora todas las dependencias de node
+node_modules
+*/node_modules
+
+# Ignora los directorios de salida de compilación
+dist
+*/dist
+
+# Ignora archivos de Git
+.git
+.gitignore
+
+# Ignora variables de entorno
+.env
+.env.*

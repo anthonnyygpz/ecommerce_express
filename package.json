@@ -1,0 +1,50 @@
+{
+  "name": "ecommerce_express",
+  "version": "1.0.0",
+  "description": "",
+  "private": true,
+  "workspaces": [
+    "user-service",
+    "auth-service",
+    "product-cat-service",
+    "cart-service"
+  ],
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "pnpm --stream -r build",
+    "dev": "echo 'Use pnpm dev in a specific service directory'",
+    "start": "echo 'Use pnpm start in a specific service directory'",
+    "docker:dev": "docker compose -f docker-compose.yml -f docker-compose.dev.yml up --build",
+    "docker:prod": "docker compose up --build",
+    "docker:down": "docker compose -f docker-compose.yml -f docker-compose.dev.yml down",
+    "lint": "eslint . --ext .ts",
+    "lint:fix": "eslint . --ext .ts --fix"
+  },
+  "keywords": [],
+  "author": "",
+  "type": "module",
+  "license": "ISC",
+  "packageManager": "pnpm@10.20.0",
+  "engines": {
+    "node": ">=20.19.5"
+  },
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "connect-redis": "^9.0.0",
+    "express": "^5.1.0",
+    "express-session": "^1.18.2",
+    "morgan": "^1.10.1",
+    "pg": "^8.16.3",
+    "redis": "^5.9.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.1",
+    "@typescript-eslint/eslint-plugin": "^8.46.3",
+    "@typescript-eslint/parser": "^8.46.3",
+    "eslint": "^9.39.1",
+    "eslint-config-prettier": "^10.1.8",
+    "globals": "^16.5.0",
+    "prettier": "^3.6.2",
+    "typescript-eslint": "^8.46.3"
+  }
+}

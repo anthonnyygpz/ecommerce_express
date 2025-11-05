@@ -1,0 +1,7 @@
+packages:
+  - "packages/**"
+  - user-service
+  - auth-service
+  - product-cat-service
+  - cart-service
+  - shared

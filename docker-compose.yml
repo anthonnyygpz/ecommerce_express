@@ -1,0 +1,105 @@
+services:
+  user-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        SERVICE_NAME: user-service
+    container_name: user_service_container
+    ports:
+      - "3001:3000"
+    restart: unless-stopped
+    networks:
+      - network
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    environment:
+      - NODE_ENV=${NODE_ENV}
+      - SESSION_SECRET=${SESSION_SECRET}
+      - DB_USER=${AUTH_DB_USER}
+      - DB_HOST=${AUTH_DB_HOST}
+      - DB_DATABASE=${AUTH_DB_DATABASE}
+      - DB_PASSWORD=${AUTH_DB_PASSWORD}
+      - DB_PORT=${AUTH_DB_PORT}
+    command: npm run dev --workspace=user-service
+
+  auth-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        SERVICE_NAME: auth-service
+    container_name: auth_service_container
+    ports:
+      - "3002:3000"
+    restart: unless-stopped
+    networks:
+      - network
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    environment:
+      - NODE_ENV=${NODE_ENV}
+      - SESSION_SECRET=${SESSION_SECRET}
+      - DB_USER=${AUTH_DB_USER}
+      - DB_HOST=${AUTH_DB_HOST}
+      - DB_DATABASE=${AUTH_DB_DATABASE}
+      - DB_PASSWORD=${AUTH_DB_PASSWORD}
+      - DB_PORT=${AUTH_DB_PORT}
+
+  product-cat-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        SERVICE_NAME: product-cat-service
+    container_name: product_cat_service
+    ports:
+      - "3003:3000"
+    restart: unless-stopped
+    networks:
+      - network
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    environment:
+      - NODE_ENV=${NODE_ENV}
+      - SESSION_SECRET=${SESSION_SECRET}
+      - DB_USER=${PRODUCT_DB_USER}
+      - DB_HOST=${PRODUCT_DB_HOST}
+      - DB_DATABASE=${PRODUCT_DB_DATABASE}
+      - DB_PASSWORD=${PRODUCT_DB_PASSWORD}
+      - DB_PORT=${PRODUCT_DB_PORT}
+
+  cart-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        SERVICE_NAME: cart-service
+    container_name: cart_service
+    ports:
+      - "3004:3000"
+    restart: unless-stopped
+    networks:
+      - network
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    environment:
+      - NODE_ENV=${NODE_ENV}
+      - SESSION_SECRET=${SESSION_SECRET}
+      - DB_USER=${CART_DB_USER}
+      - DB_HOST=${CART_DB_HOST}
+      - DB_DATABASE=${CART_DB_DATABASE}
+      - DB_PASSWORD=${CART_DB_PASSWORD}
+      - DB_PORT=${CART_DB_PORT}
+
+  redis-service:
+    image: "redis:alpine"
+    container_name: redis_session_store
+    ports:
+      - "6379:6379"
+    networks:
+      - network
+
+networks:
+  network:
+    driver: bridge

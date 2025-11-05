@@ -1,0 +1,56 @@
+services:
+  auth-service:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+      args:
+        SERVICE_NAME: auth-service
+      target: builder
+    working_dir: /app
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - /app/user-service/node_modules
+    command: ["pnpm", "--filter", "auth-service", "run", "dev"]
+
+  user-service:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+      args:
+        SERVICE_NAME: user-service
+      target: builder
+    working_dir: /app
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - /app/user-service/node_modules
+    command: ["pnpm", "--filter", "user-service", "run", "dev"]
+
+  product-cat-service:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+      args:
+        SERVICE_NAME: product-cat-service
+      target: builder
+    working_dir: /app
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - /app/product-cat-service/node_modules
+    command: ["pnpm", "--filter", "product-cat-service", "run", "dev"]
+
+  cart-service:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+      args:
+        SERVICE_NAME: cart-service
+      target: builder
+    working_dir: /app
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - /app/cart-service/node_modules
+    command: ["pnpm", "--filter", "cart-service", "run", "dev"]

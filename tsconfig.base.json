@@ -1,0 +1,29 @@
+// tsconfig.base.json en la raíz
+{
+  "compilerOptions": {
+    "target": "esnext",
+    "module": "commonjs",
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "strict": true,
+    "skipLibCheck": true,
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "allowImportingTsExtensions": true,
+    "emitDeclarationOnly": true,
+    "declaration": true,
+    "typeRoots": [
+      "./node_modules/@types",
+      "./shared/@types"
+    ],
+    "baseUrl": ".",
+    "paths": {
+      "shared": [
+        "shared/"
+      ],
+      "shared/*": [
+        "shared/*"
+      ]
+    }
+  },
+}

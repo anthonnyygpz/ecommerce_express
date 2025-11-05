@@ -92,6 +92,29 @@ services:
       - DB_PASSWORD=${CART_DB_PASSWORD}
       - DB_PORT=${CART_DB_PORT}
 
+  order-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        SERVICE_NAME: order-service
+    container_name: order_service_cotainer
+    ports:
+      - "3005:3000"
+    restart: unless-stopped
+    networks:
+      - network
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    environment:
+      - NODE_ENV=${NODE_ENV}
+      - SESSION_SECRET=${SESSION_SECRET}
+      - DB_USER=${ORDER_DB_USER}
+      - DB_HOST=${ORDER_DB_HOST}
+      - DB_DATABASE=${ORDER_DB_DATABASE}
+      - DB_PASSWORD=${ORDER_DB_PASSWORD}
+      - DB_PORT=${ORDER_DB_PORT}
+
   redis-service:
     image: "redis:alpine"
     container_name: redis_session_store

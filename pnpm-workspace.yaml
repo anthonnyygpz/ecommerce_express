@@ -4,4 +4,5 @@ packages:
   - auth-service
   - product-cat-service
   - cart-service
+  - order-service
   - shared

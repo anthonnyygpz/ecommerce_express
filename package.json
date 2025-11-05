@@ -7,7 +7,8 @@
     "user-service",
     "auth-service",
     "product-cat-service",
-    "cart-service"
+    "cart-service",
+    "order-service"
   ],
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",

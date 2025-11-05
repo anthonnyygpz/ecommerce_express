@@ -54,3 +54,17 @@ services:
       - /app/node_modules
       - /app/cart-service/node_modules
     command: ["pnpm", "--filter", "cart-service", "run", "dev"]
+
+  order-service:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+      args:
+        SERVICE_NAME: order-service
+      target: builder
+    working_dir: /app
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - /app/order-service/node_modules
+    command: ["pnpm", "--filter", "order-service", "run", "dev"]

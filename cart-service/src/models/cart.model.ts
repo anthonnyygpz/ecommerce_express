@@ -39,3 +39,9 @@ export interface CartResponse {
   message?: string;
   error?: string;
 }
+
+export interface UpdateProductQuantity {
+  cart_id: number;
+  product_id: number;
+  quantity: number
+}

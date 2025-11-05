@@ -1,10 +1,10 @@
 import db from "../config/db";
-import { CartFetchResult, CartSuccessResponse, CreateCartBody } from "../models/cart.model";
+import { CartFetchResult, CartItemModel, CartSuccessResponse, CreateCartBody, UpdateProductQuantity } from "../models/cart.model";
 
 export const fetchCart = async (userId: number | string): Promise<CartFetchResult | null> => {
   const queryText = `
     SELECT
-      c.*, -- Trae todas las columnas de la tabla 'cart'
+      c.*, -- Trae todas las columnas de la tabla 'carts'
       COALESCE(
         json_agg(
           json_build_object(
@@ -17,7 +17,7 @@ export const fetchCart = async (userId: number | string): Promise<CartFetchResul
         '[]'::json
       ) AS items
     FROM
-      cart c
+      carts c
     LEFT JOIN
       cart_items ci ON c.cart_id = ci.cart_id
     WHERE
@@ -56,6 +56,35 @@ export const addToCart = async (userId: number | string, data: CreateCartBody) =
     const { rows } = await db.query(queryText, queryParams);
 
     return rows[0] || null;
+  } catch (error) {
+    throw error;
+  }
+}
+
+export const updateProductQuantity = async (userId: number | string, data: UpdateProductQuantity) => {
+  const { cart_id, quantity, product_id } = data;
+  try {
+
+
+    const queryText = "SELECT * FROM manage_cart_item($1, $2, $3, $4)";
+    const queryParams = [cart_id, product_id, quantity, userId];
+
+    const { rows } = await db.query<CartItemModel>(queryText, queryParams);
+
+    return rows[0]
+  } catch (error) {
+    throw error;
+  }
+
+
+}
+
+export const clearAllProduct = async (userId: number | string) => {
+  try {
+    const queryText = "DELETE FROM carts WHERE user_id = $1";
+    const queryParams = [userId];
+    const { rows } = await db.query(queryText, queryParams);
+    return rows[0] || [];
   } catch (error) {
     throw error;
   }

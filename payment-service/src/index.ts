@@ -3,7 +3,7 @@ import morgan from "morgan";
 import session from 'express-session';
 import { createClient } from "redis";
 import { RedisStore } from "connect-redis";
-import orderRouter from "./routes/order.route";
+import paymentRouter from "./routes/payment.route"
 
 const redisClient = createClient({
   url: process.env.REDIS_URL || 'redis://redis-service:6379'
@@ -32,9 +32,10 @@ app.use(session({
   }
 }));
 
-app.use('/api/orders', orderRouter);
+app.use('/api/payments', paymentRouter);
 
 app.listen(3000, () => {
-  console.log("Server up of order-service http://localhost:3006");
+  console.log("Server up of cart-service http://localhost:3006");
 });
+
 

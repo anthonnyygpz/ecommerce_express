@@ -115,6 +115,52 @@ services:
       - DB_PASSWORD=${ORDER_DB_PASSWORD}
       - DB_PORT=${ORDER_DB_PORT}
 
+  payment-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        SERVICE_NAME: payment-service
+    container_name: payment_service_cotainer
+    ports:
+      - "3006:3000"
+    restart: unless-stopped
+    networks:
+      - network
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    environment:
+      - NODE_ENV=${NODE_ENV}
+      - SESSION_SECRET=${SESSION_SECRET}
+      - DB_USER=${PAYMENT_DB_USER}
+      - DB_HOST=${PAYMENT_DB_HOST}
+      - DB_DATABASE=${PAYMENT_DB_DATABASE}
+      - DB_PASSWORD=${PAYMENT_DB_PASSWORD}
+      - DB_PORT=${PAYMENT_DB_PORT}
+
+  shipping-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        SERVICE_NAME: shipping-service
+    container_name: shipping_service_cotainer
+    ports:
+      - "3007:3000"
+    restart: unless-stopped
+    networks:
+      - network
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    environment:
+      - NODE_ENV=${NODE_ENV}
+      - SESSION_SECRET=${SESSION_SECRET}
+      - DB_USER=${SHIPPING_DB_USER}
+      - DB_HOST=${SHIPPING_DB_HOST}
+      - DB_DATABASE=${SHIPPING_DB_DATABASE}
+      - DB_PASSWORD=${SHIPPING_DB_PASSWORD}
+      - DB_PORT=${SHIPPING_DB_PORT}
+
   redis-service:
     image: "redis:alpine"
     container_name: redis_session_store

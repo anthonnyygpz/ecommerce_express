@@ -5,4 +5,6 @@ packages:
   - product-cat-service
   - cart-service
   - order-service
+  - shipping-service
+  - payment-service
   - shared

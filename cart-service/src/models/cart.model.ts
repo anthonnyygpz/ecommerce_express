@@ -1,20 +1,4 @@
-export interface CartModel {
-  cart_id: number;
-  user_id: number;
-  created_at: string;
-  updated_at: string;
-}
-
-
-export interface CartItemModel {
-  cart_item_id: number;
-  cart_id: number;
-  product_id: number;
-  quantity: number;
-  price_at_addition_cents: number;
-  added_at: string;
-}
-
+import { CartSchema, CartItemSchema } from "shared/schemas/cart.schema";
 
 export interface CreateCartBody {
   product_id: number;
@@ -22,9 +6,9 @@ export interface CreateCartBody {
   price_cents: number;
 }
 
-type AggregatedCartItem = Pick<CartItemModel, 'cart_item_id' | 'product_id' | 'quantity'>;
+type AggregatedCartItem = Pick<CartItemSchema, 'cart_item_id' | 'product_id' | 'quantity'>;
 
-export type CartSuccessResponse = CartModel & {
+export type CartSuccessResponse = CartSchema & {
   status: 'success';
   items: AggregatedCartItem[];
 };

@@ -68,3 +68,31 @@ services:
       - /app/node_modules
       - /app/order-service/node_modules
     command: ["pnpm", "--filter", "order-service", "run", "dev"]
+
+  payment-service:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+      args:
+        SERVICE_NAME: payment-service
+      target: builder
+    working_dir: /app
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - /app/payment-service/node_modules
+    command: ["pnpm", "--filter", "payment-service", "run", "dev"]
+
+  shipping-service:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+      args:
+        SERVICE_NAME: shipping-service
+      target: builder
+    working_dir: /app
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - /app/shipping-service/node_modules
+    command: ["pnpm", "--filter", "shipping-service", "run", "dev"]

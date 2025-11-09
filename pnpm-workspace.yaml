@@ -7,4 +7,5 @@ packages:
   - order-service
   - shipping-service
   - payment-service
+  - address-service
   - shared

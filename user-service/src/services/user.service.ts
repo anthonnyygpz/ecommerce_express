@@ -1,6 +1,27 @@
 import db from "../config/db";
 import bcrypt from "bcryptjs";
 import { UpdateUserBody } from "../models/user.model";
+import { UserSchema } from "shared/schemas";
+
+export const fetchMe = async (userId: number | string) => {
+  try {
+
+    const queryText = "SELECT * FROM users WHERE user_id = $1";
+    const queryParams = [userId];
+    const { rows } = await db.query<UserSchema>(queryText, queryParams);
+
+    if (!rows[0]) {
+      return null;
+    }
+
+    delete rows[0].password_hashed;
+
+    return rows[0];
+  } catch (error) {
+    throw error;
+  }
+}
+
 
 export const updateUser = async (userId: number | string, data: UpdateUserBody) => {
   const { username, address_id, password } = data;

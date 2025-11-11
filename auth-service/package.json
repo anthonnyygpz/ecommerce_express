@@ -14,13 +14,16 @@
   "license": "ISC",
   "packageManager": "pnpm@10.19.0",
   "dependencies": {
+    "@types/cors": "^2.8.19",
     "bcryptjs": "^3.0.2",
     "connect-redis": "^9.0.0",
+    "cors": "^2.8.5",
     "express": "^5.1.0",
     "express-session": "^1.18.2",
     "morgan": "^1.10.1",
     "pg": "^8.16.3",
-    "redis": "^5.9.0"
+    "redis": "^5.9.0",
+    "shared": "^0.2.0"
   },
   "devDependencies": {
     "@types/express": "^5.0.4",

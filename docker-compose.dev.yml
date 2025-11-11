@@ -96,3 +96,17 @@ services:
       - /app/node_modules
       - /app/shipping-service/node_modules
     command: ["pnpm", "--filter", "shipping-service", "run", "dev"]
+
+  address-service:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+      args:
+        SERVICE_NAME: address-service
+      target: builder
+    working_dir: /app
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - /app/address-service/node_modules
+    command: ["pnpm", "--filter", "address-service", "run", "dev"]

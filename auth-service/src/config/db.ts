@@ -1,11 +1,9 @@
-import pg from "pg";
+import pg, { QueryResultRow } from "pg";
 import { QueryResult } from "pg";
-import { UserModel } from "../models/user";
 
 const { Pool } = pg;
 
-const DB_PORT = parseInt(process.env.DB_PORT || '5432', 10);
-
+const DB_PORT = parseInt(process.env.DB_PORT || "5432", 10);
 
 const pool = new Pool({
   user: process.env.DB_USER,
@@ -16,10 +14,15 @@ const pool = new Pool({
   max: 20,
   idleTimeoutMillis: 30000,
   connectionTimeoutMillis: 2000,
-})
+});
 
 const db = {
-  query: (text: string, params?: any[]): Promise<QueryResult<UserModel>> => pool.query(text, params),
+  query: <T extends QueryResultRow = any>(
+    text: string,
+    params?: any[],
+  ): Promise<QueryResult<T>> => {
+    return pool.query<T>(text, params);
+  },
 };
 
 export default db;

@@ -29,7 +29,7 @@ var import_express_session = __toESM(require("express-session"), 1);
 var import_redis = require("redis");
 var import_connect_redis = require("connect-redis");
 
-// src/routes/auth.ts
+// src/routes/auth.route.ts
 var import_express = require("express");
 var import_bcryptjs2 = __toESM(require("bcryptjs"), 1);
 
@@ -51,7 +51,9 @@ var pool = new Pool({
   connectionTimeoutMillis: 2e3
 });
 var db = {
-  query: (text, params) => pool.query(text, params)
+  query: (text, params) => {
+    return pool.query(text, params);
+  }
 };
 var db_default = db;
 
@@ -71,7 +73,7 @@ var createUser = async (data) => {
 };
 var login = async (data) => {
   const { email } = data;
-  const queryText = "SELECT * FROM users WHERE email = $1 AND status = 'active'";
+  const queryText = "SELECT * FROM users WHERE email = $1 AND  status = 'active'";
   const queryParams = [email];
   const { rows } = await db_default.query(queryText, queryParams);
   const user = rows[0];
@@ -79,20 +81,26 @@ var login = async (data) => {
 };
 
 // src/services/chekcExists.ts
-var isExistsEmail = async (email) => {
+var isExistsEmail = async (email, res) => {
   const queryText = "SELECT 1 FROM users WHERE email = $1";
   const queryParams = [email];
   const { rows } = await db_default.query(queryText, queryParams);
-  return rows.length > 0;
+  if (rows.length > 0) {
+    return res.status(400).json({ error: "Ya existe este correo." });
+  }
+  return null;
 };
-var isExistsUsername = async (username) => {
+var isExistsUsername = async (username, res) => {
   const queryText = "SELECT 1 FROM users WHERE username = $1";
   const queryParams = [username];
   const { rows } = await db_default.query(queryText, queryParams);
-  return rows.length > 0;
+  if (rows.length > 0) {
+    return res.status(400).json({ error: "Ya existe este nombre de usuario." });
+  }
+  return null;
 };
 
-// src/routes/auth.ts
+// src/routes/auth.route.ts
 var router = (0, import_express.Router)();
 router.post("/login", async (req, res) => {
   const { email, password } = req.body;
@@ -110,12 +118,14 @@ router.post("/login", async (req, res) => {
     }
     req.session.userId = user.user_id;
     req.session.username = user.username;
+    req.session.isAdmin = user.isAdmin;
     res.status(200).json({
       message: "Login exitoso",
-      user: {
+      data: {
         user_id: user.user_id,
         username: user.username,
-        email: user.email
+        email: user.email,
+        role: user.isAdmin ? "admin" : "user"
       }
     });
   } catch (error) {
@@ -129,12 +139,12 @@ router.post("/register", async (req, res) => {
     return res.status(400).json({ error: "Faltan los campos username, email o password" });
   }
   try {
-    await isExistsEmail(email);
-    await isExistsUsername(username);
+    await isExistsEmail(email, res);
+    await isExistsUsername(username, res);
     const newUser = await createUser(req.body);
     req.session.userId = newUser.user_id;
     req.session.username = newUser.username;
-    res.status(201).json({ user: newUser });
+    res.status(201).json(newUser);
   } catch (error) {
     console.error("Error al insertar usuario:", error);
     res.status(500).json({ error: "Error interno del servidor" });
@@ -149,9 +159,10 @@ router.post("/logout", (req, res) => {
     res.status(200).json({ message: "Se cerro sesi\xF3n exitosamente." });
   });
 });
-var auth_default = router;
+var auth_route_default = router;
 
 // src/index.ts
+var import_cors = __toESM(require("cors"), 1);
 var redisClient = (0, import_redis.createClient)({
   url: process.env.REDIS_URL || "redis://redis-service:6379"
 });
@@ -161,19 +172,24 @@ var redisStore = new import_connect_redis.RedisStore({
   prefix: "session"
 });
 var app = (0, import_express2.default)();
+app.use((0, import_cors.default)({ origin: process.env.FRONTEND_URL, credentials: true }));
 app.use(import_express2.default.json());
 app.use((0, import_morgan.default)("dev"));
-app.use((0, import_express_session.default)({
-  store: redisStore,
-  secret: process.env.SESSION_SECRET || "",
-  resave: false,
-  saveUninitialized: false,
-  cookie: {
-    secure: process.env.NODE_ENV === "production",
-    maxAge: 1e3 * 60 * 60 * 24
-  }
-}));
-app.use("/api/auth", auth_default);
+app.use(
+  (0, import_express_session.default)({
+    store: redisStore,
+    secret: process.env.SESSION_SECRET || "",
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      secure: process.env.NODE_ENV === "production",
+      httpOnly: true,
+      maxAge: 1e3 * 60 * 60 * 24,
+      sameSite: "lax"
+    }
+  })
+);
+app.use("/api/auth", auth_route_default);
 app.listen(3e3, () => {
   console.log("Server up of auth-service http://localhost:3002");
 });

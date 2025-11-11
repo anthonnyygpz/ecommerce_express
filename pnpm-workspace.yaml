@@ -1,5 +1,5 @@
 packages:
-  - "packages/**"
+  - packages/**
   - user-service
   - auth-service
   - product-cat-service
@@ -9,3 +9,6 @@ packages:
   - payment-service
   - address-service
   - shared
+
+onlyBuiltDependencies:
+  - bson

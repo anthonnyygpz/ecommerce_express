@@ -4,6 +4,7 @@ import session from 'express-session';
 import routerUser from "./routes/user.js";
 import { createClient } from "redis";
 import { RedisStore } from "connect-redis";
+import cors from "cors";
 
 const redisClient = createClient({
   url: process.env.REDIS_URL || 'redis://redis-service:6379'
@@ -17,6 +18,7 @@ const redisStore = new RedisStore({
 
 const app = express();
 
+app.use(cors({ origin: process.env.FRONTEND_URL, credentials: true }))
 app.use(express.json());
 app.use(morgan('dev'));
 
@@ -28,7 +30,8 @@ app.use(session({
   cookie: {
     secure: process.env.NODE_ENV === 'production',
     httpOnly: true,
-    maxAge: 1000 * 60 * 60 * 24 // 1 día
+    maxAge: 1000 * 60 * 60 * 24,
+    sameSite: 'lax'
   }
 }));
 

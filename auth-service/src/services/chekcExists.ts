@@ -25,6 +25,13 @@ export const isExistsUsername = async (username: string, res: Response) => {
   return null;
 }
 
-export const isUserActive = async () => {
+export const isActiveUser = async (userId: number): Promise<boolean> => {
+  const queryText = "SELECT 1 FROM users WHERE user_id = $1 and status = 'active'";
+  const queryParams = [userId];
+  const { rows } = await db.query(queryText, queryParams);
 
+  if (rows.length > 0) {
+    return false
+  }
+  return true
 }

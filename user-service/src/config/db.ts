@@ -1,5 +1,4 @@
-import pg, { QueryResult } from "pg";
-import { UserModel } from "../models/user.model";
+import pg, { QueryResult, QueryResultRow } from "pg";
 
 const { Pool } = pg;
 
@@ -18,7 +17,12 @@ const pool = new Pool({
 })
 
 const db = {
-  query: (text: string, params?: any[]): Promise<QueryResult<UserModel>> => pool.query(text, params),
+  query: <T extends QueryResultRow = any>(
+    text: string,
+    params?: any[]
+  ): Promise<QueryResult<T>> => {
+    return pool.query<T>(text, params);
+  }
 };
 
 export default db;

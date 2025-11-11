@@ -1,5 +1,5 @@
 import db from "../config/db";
-import { CartFetchResult, CartItemModel, CartSuccessResponse, CreateCartBody, UpdateProductQuantity } from "../models/cart.model";
+import { CartFetchResult, CartSuccessResponse, CreateCartBody, UpdateProductQuantity } from "../models/cart.model";
 
 export const fetchCart = async (userId: number | string): Promise<CartFetchResult | null> => {
   const queryText = `
@@ -69,7 +69,7 @@ export const updateProductQuantity = async (userId: number | string, data: Updat
     const queryText = "SELECT * FROM manage_cart_item($1, $2, $3, $4)";
     const queryParams = [cart_id, product_id, quantity, userId];
 
-    const { rows } = await db.query<CartItemModel>(queryText, queryParams);
+    const { rows } = await db.query(queryText, queryParams);
 
     return rows[0]
   } catch (error) {

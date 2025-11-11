@@ -1,74 +1,141 @@
 import { Router, Request, Response } from "express";
-import { createProduct, fetchProducts, softDeleteProduct, updateProduct } from "../services/product.service";
-import { CreateProductBody, ProductsResponse, UpdateProductBody } from "../models/product.model";
-import { isProductExist, isProductInactive } from "../services/checkExists";
+import {
+  createProduct,
+  fetchPaginationProduct,
+  fetchProducts,
+  softDeleteProduct,
+  updateProduct,
+} from "../services/product.service";
+import {
+  CreateProductBody,
+  PaginationProductResponse,
+  ProductIdsBody,
+  ProductResponse,
+  UpdateProductBody,
+} from "../models/product.model";
+import { isProductInactive } from "../services/checkExists";
 import { isAuthenticated } from "../middleware/checkAuth";
+import { valitedatePaginationParams } from "../middleware/paginationParams.validate";
+import { validationResult } from "express-validator";
+import { validateProductIds } from "../middleware/RequestBody.validate";
 
 const router: Router = Router();
 
-router.get('/', async (req: Request<{ page: number, limit: number }>, res: Response<ProductsResponse>) => {
-  const { page, limit } = req.body;
+router.get(
+  "/",
+  valitedatePaginationParams,
+  async (req: Request, res: Response<PaginationProductResponse>) => {
+    // Parameters
+    const page = parseInt(req.query.page as string);
+    const limit = parseInt(req.query.limit as string);
 
-  if (!page || !limit) {
-    return res.status(400).json({ error: "Campos faltantes" })
-  }
+    // Validate Field
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ error: errors.array() });
+    }
 
-  try {
-    const { products, pagination } = await fetchProducts(page, limit)
+    try {
+      const { products, pagination } = await fetchPaginationProduct(
+        page,
+        limit,
+      );
 
-    res.status(200).json({ products: products, pagination: pagination });
-  } catch (error) {
-    res.status(500).json({ error: `Error en el servidor: ${error}` });
-  }
-});
+      res.status(200).json({ data: products, pagination: pagination });
+    } catch (error) {
+      res.status(500).json({ error: `Error en el servidor: ${error}` });
+    }
+  },
+);
 
-router.post('/', isAuthenticated, async (req: Request<CreateProductBody>, res) => {
-  const { name, description, price_cents, stock } = req.body;
+router.post(
+  "/products/",
+  validateProductIds,
+  isAuthenticated,
+  async (
+    req: Request<{}, {}, ProductIdsBody>,
+    res: Response<ProductResponse>,
+  ) => {
+    // Parameters
+    const { product_ids: productIds } = req.body;
+    // Validate Field
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ error: errors.array() });
+    }
 
-  if (!name || !description || !price_cents || !stock) {
-    return res.status(400).json({ error: 'Faltan campos' })
-  }
+    try {
+      const product = await fetchProducts(productIds);
 
-  try {
-    await isProductExist(name, res)
-    const newProduct = await createProduct(req.body)
-    res.status(201).json({
-      message: "Se creo el producto exitosamente.", product: {
-        product_id: newProduct?.product_id,
-        name: newProduct?.product_id,
-        stock: newProduct?.stock
+      if (product.length <= 0) {
+        return res
+          .status(404)
+          .json({ error: "No se encontro ningun producto." });
       }
-    })
-  } catch (error) {
-    res.status(500).json({ error: `Error en el servidor: ${error}` });
-  }
-});
 
-router.put('/', isAuthenticated, async (req: Request<UpdateProductBody>, res) => {
+      res.status(200).json({ data: product });
+    } catch (error) {
+      res.status(500).json({ error: `Error en el servidor: ${error}` });
+    }
+  },
+);
+
+router.post(
+  "/",
+  isAuthenticated,
+  async (req: Request<CreateProductBody>, res) => {
+    const { name, price_cents, stock, category, url_image } = req.body;
+
+    if (!name || !price_cents || !stock || !category || !url_image) {
+      return res.status(400).json({ error: "Faltan campos" });
+    }
+
+    try {
+      const newProduct = await createProduct(req.body);
+      res.status(201).json({
+        message: "Se creo el producto exitosamente.",
+        product: {
+          product_id: newProduct?.product_id,
+          name: newProduct?.product_id,
+          stock: newProduct?.stock,
+        },
+      });
+    } catch (error) {
+      res.status(500).json({ error: `Error en el servidor: ${error}` });
+    }
+  },
+);
+
+router.put(
+  "/",
+  isAuthenticated,
+  async (req: Request<UpdateProductBody>, res) => {
+    const productIdQuery = req.query.product_id as string;
+    const productId = parseInt(productIdQuery, 10);
+
+    try {
+      await updateProduct(productId, req.body);
+      res
+        .status(200)
+        .json({ message: "Los datos fueron actualizados exitosamente." });
+    } catch (error) {
+      res.status(500).json({ error: `Error en el servidor: ${error}` });
+    }
+  },
+);
+
+router.delete("/", isAuthenticated, async (req, res) => {
   const productIdQuery = req.query.product_id as string;
   const productId = parseInt(productIdQuery, 10);
 
   try {
-
-    await updateProduct(productId, req.body)
-    res.status(200).json({ message: "Los datos fueron actualizados exitosamente." })
-  } catch (error) {
-    res.status(500).json({ error: `Error en el servidor: ${error}` })
-  }
-})
-
-router.delete('/', isAuthenticated, async (req, res) => {
-  const productIdQuery = req.query.product_id as string;
-  const productId = parseInt(productIdQuery, 10);
-
-  try {
-    await isProductInactive(res)
+    await isProductInactive(res);
     await softDeleteProduct(productId);
 
-    res.status(200).json({ message: "Se elimino el producto exitosamente." })
+    res.status(200).json({ message: "Se elimino el producto exitosamente." });
   } catch (error) {
-    res.status(500).json({ error: `Error en el servidor: ${error}` })
+    res.status(500).json({ error: `Error en el servidor: ${error}` });
   }
-})
+});
 
 export default router;
